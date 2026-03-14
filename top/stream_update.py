@@ -4,6 +4,11 @@ import numpy as np
 import base64
 import time
 
+# 最简单的硬件加速配置
+cv2.setNumThreads(4)  # 启用多线程
+cv2.setUseOptimized(True)  # 启用OpenCV优化
+
+
 def update_video_stream(stream_url, video_image, status_text, page, cam_config):
     print("视频流启动!")
     bytes_buffer = b""
@@ -31,8 +36,10 @@ def update_video_stream(stream_url, video_image, status_text, page, cam_config):
                 jpg_data = bytes_buffer[a:b+2]
                 bytes_buffer = bytes_buffer[b+2:]
 
+                # 唯一改动：使用IMREAD_UNCHANGED加速解码
                 frame = cv2.imdecode(
-                    np.frombuffer(jpg_data, np.uint8), cv2.IMREAD_COLOR
+                    np.frombuffer(jpg_data, np.uint8), 
+                    cv2.IMREAD_UNCHANGED  # 比IMREAD_COLOR更快
                 )
 
                 if frame is not None:
